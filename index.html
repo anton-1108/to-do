@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To-Do List</title>
+    <style>
+      body {
+        background-color: #f5f5f5;
+        font-family: Arial, Helvetica, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+      .container {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 350px;
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+      .input-row {
+        display: flex;
+        margin-bottom: 15px;
+      }
+      input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px 0 0 8px;
+        outline: none;
+      }
+      button {
+        padding: 8px 12px;
+        border: none;
+        background-color: #007bff;
+        color: white;
+        font-weight: bold;
+        border-radius: 0 8px 8px 0;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa;
+        padding: 8px 10px;
+        margin-bottom: 8px;
+        border-radius: 6px;
+      }
+      li span.done {
+        text-decoration: line-through;
+        color: #999;
+      }
+      .delete-btn {
+        background-color: none;
+        border: none;
+        color: red;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      .clean-btn {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+      }
+      .clear-btn:hover {
+        background: #a71d2a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>To-Do List</h1>
+      <div class="input-row">
+        <input id="taskInput" type="text" placeholder="add text" />
+        <button id="addBtn">add</button>
+      </div>
+      <ul id="taskList"></ul>
+      <button id="clearAll" class="Clear-btn">Clean all</button>
+    </div>
+    <script>
+      const taskInput = document.getElementById("taskInput");
+      const addBtn = document.getElementById("addBtn");
+      const taskList = document.getElementById("taskList");
+      const clearAll = document.getElementById("clearAll");
+
+      let todos = JSON.parse(localStorage.getItem("todos") || "[]");
+
+      function render() {
+        taskList.innerHTML = "";
+        todos.forEach((todo, index) => {
+          const li = document.createElement("li");
+          const text = document.createElement("span");
+          text.textContent = todo.text;
+          if (todo.done) text.classList.add("done");
+
+          text.addEventListener("click", () => {
+            todos[index].done = !todos[index].done;
+            save();
+            render();
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "X";
+          delBtn.className = "delete-btn";
+          delBtn.addEventListener("click", () => {
+            todos.splice(index, 1);
+            save();
+            render();
+          });
+
+          li.appendChild(text);
+          li.appendChild(delBtn);
+          taskList.appendChild(li);
+        });
+      }
+
+      function save() {
+        localStorage.setItem("todos", JSON.stringify(todos));
+      }
+
+      addBtn.addEventListener("click", () => {
+        const text = taskInput.value.trim();
+        if (!text) return;
+        todos.push({ text, done: false });
+        taskInput.value = "";
+        save();
+        render();
+      });
+
+      taskInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") addBtn.click();
+      });
+
+      clearAll.addEventListener("click", () => {
+        if (confirm("Dlete all Tasks")) {
+          todos = [];
+          save();
+          render();
+        }
+      });
+      render();
+    </script>
+  </body>
+</html>
